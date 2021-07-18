@@ -1,0 +1,233 @@
+---
+title: "Resultados preliminares Simulacro 2021 - 11°"
+author: "María Lucía"
+date: "20/6/2021"
+output: html_document
+---
+
+```{r, echo=FALSE}
+library(tidyverse) 
+library(data.table) 
+#Subiendo las bases a R
+library(readxl)
+simulacro_130_IED <- read_excel("~/SED/Seguimiento y monitoreo/Focalización/Nuestra ruta/SIMULACROS/2021/130 IED simulacro 2021.xlsx",sheet = "2020 2021")
+class(simulacro_130_IED)
+#convertir todas las que estén como caracter en factor 
+simulacro_130_IED <-simulacro_130_IED %>%mutate_if(is.character,as.factor)%>%na.omit()
+str(simulacro_130_IED)
+
+
+#Cambiar nombre de variables 
+names(simulacro_130_IED)#ver nombres
+names(simulacro_130_IED)<-c('cdane','IED','categ','Focalización','MAPSI','APE', 'GRUPO5','pg_s2021', 'lec_2021', 'mat_2021', 'soc_2021', 'nat_2021', 'ing_2021' , 'pg_s2020' ,'lec_2020', 'mat_2020' , 'soc_2020', 'nat_2020', 'ing_2020' , 'dif_pg') #cambiar nombres
+```
+
+# Puntaje Global 
+Comparación del puntaje global de 2020 vs 2021 de las IEDs para las que se tiene resultado por el momento. 
+
+```{r, echo=FALSE}
+#crear columna de diferencia 
+sim_130IED_2<-   simulacro_130_IED%>%mutate(
+         dif.Lec = ((lec_2021 - lec_2020)),
+         dif.Mat = (( mat_2021- mat_2020)),
+         dif.soc = ((soc_2021 - soc_2020)), 
+         dif.nat = ((nat_2021 - nat_2020))
+         ) 
+
+summary(sim_130IED_2$dif_pg)
+
+
+library(ggplot2) #para realizar gráficos
+
+
+plot_1<-ggplot(sim_130IED_2,aes(x=pg_s2020,y=pg_s2021, color=dif_pg))+
+geom_point()+ xlab("Puntaje global simulacro 2020")+ylab("Puntaje global simulacro 2021")+ 
+  theme(panel.background = element_rect(fill = 'white', colour = 'white')) +
+geom_abline(slope=1, size=1, color="black")+ 
+scale_colour_gradient(limits = c(-95, 80), low = "red",high = "green")
+library(plotly)
+ggplotly(plot_1)
+
+```
+
+## Puntaje global 2021 
+IED de menor a mayor según puntaje global del simulacro 2021.
+
+### Puntajes bajos
+
+1. IEDs con puntajes por debajo de 160 
+
+```{r, echo=FALSE}
+library(ggplot2)
+mean(simulacro_130_IED$pg_s2021)
+summary(simulacro_130_IED$pg_s2021)
+# Clasificación de IEDs 
+plot_2<-ggplot(data=sim_130IED_2%>%filter(pg_s2021<=c(160)),aes(x=reorder(IED, pg_s2021),y=pg_s2021)) + 
+  geom_bar(stat ='identity',aes(fill=pg_s2021))+
+  coord_flip() + 
+  theme_grey() + 
+    scale_fill_gradient(name="Resultados Puntaje Global", low="red", high = "red")+
+  labs(title = 'Ranking de IEDs Puntajes bajos', y='Puntaje global',x='IED')+
+ geom_hline(yintercept = mean(sim_130IED_2$pg_s2021),size = 1, color = 'red') 
+plot_2
+```
+
+2. IEDs con puntajes entre 161 y 180 puntos. 
+
+```{r, echo=FALSE}
+plot_2_1<-ggplot(data=sim_130IED_2%>%filter(pg_s2021>=c(161),pg_s2021<=c(180) ),aes(x=reorder(IED, pg_s2021),y=pg_s2021)) + 
+  geom_bar(stat ='identity',aes(fill=pg_s2021))+
+  coord_flip() + 
+  theme_light() + 
+  scale_fill_gradient(name="Resultados Puntaje Global", low="red", high = "orange")+
+  labs(title = 'Ranking de IEDs Puntajes bajos', y='Puntaje global',x='IED')+
+ geom_hline(yintercept = mean(sim_130IED_2$pg_s2021),size = 1, color = 'red') 
+plot_2_1
+```
+
+3. IEDs con puntajes entre 181 y 200. 
+
+```{r, echo=FALSE}
+plot_2_2<-ggplot(data=sim_130IED_2%>%filter(pg_s2021>=c(181),pg_s2021<=c(200) ),aes(x=reorder(IED, pg_s2021),y=pg_s2021)) + 
+  geom_bar(stat ='identity',aes(fill=pg_s2021))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Resultados Puntaje Global", low="red", high = "orange")+
+  labs(title = 'Ranking de IEDs Puntajes bajos', y='Puntaje global',x='IED')+
+ geom_hline(yintercept = mean(sim_130IED_2$pg_s2021),size = 1, color = 'red') 
+plot_2_2
+```
+
+### Puntajes medios 
+
+1.IEDs con puntajes entre 201 y 250. 
+
+```{r, echo=FALSE}
+plot_3<-ggplot(data=simulacro_130_IED%>%filter(pg_s2021>=c(201),pg_s2021<=c(230)),aes(x=reorder(IED, pg_s2021),y=pg_s2021)) + 
+  geom_bar(stat ='identity',aes(fill=pg_s2021))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Resultados Puntaje Global", low="orange", high = "yellow")+
+  labs(title = 'Ranking de IEDs Puntajes medios', y='Puntaje global',x='IED')+
+ geom_hline(yintercept = mean(simulacro_130_IED$pg_s2021),size = 1, color = 'red') 
+plot_3
+
+plot_3_1<-ggplot(data=simulacro_130_IED%>%filter(pg_s2021>=c(231),pg_s2021<=c(250)),aes(x=reorder(IED, pg_s2021),y=pg_s2021)) + 
+  geom_bar(stat ='identity',aes(fill=pg_s2021))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Resultados Puntaje Global", low="yellow", high = "yellow")+
+  labs(title = 'Ranking de IEDs Puntajes medios', y='Puntaje global',x='IED')+
+ geom_hline(yintercept = mean(simulacro_130_IED$pg_s2021),size = 1, color = 'red') 
+plot_3_1
+
+
+```
+
+
+### Puntajes altos 
+
+IEDs con puntajes mayores de 251 puntos. 
+
+```{r, echo=FALSE}
+plot_4<-ggplot(data=simulacro_130_IED%>%filter(pg_s2021>=c(251) ),aes(x=reorder(IED, pg_s2021),y=pg_s2021)) + geom_bar(stat ='identity',aes(fill=pg_s2021))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Resultados Puntaje Global", low="green", high = "darkgreen")+
+  labs(title = 'Ranking de IEDs Puntajes altos', y='Puntaje global',x='IED')+
+ geom_hline(yintercept = mean(simulacro_130_IED$pg_s2021),size = 1, color = 'red') 
+plot_4
+```
+
+
+## Diferencia puntaje global simulacro 2020 VS 2021 
+Ahora, la diferencia del puntaje global de 2021 don respecto a 2020 de las IED por categoría. 
+
+1. IEDs de categoría A+ y A 
+```{r, echo=FALSE}
+plot_5<-ggplot(data=sim_130IED_2%>%filter(categ==c("A+")),aes(x=reorder(IED, dif_pg),y=dif_pg)) + 
+  geom_bar(stat ='identity',aes(fill=dif_pg))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Diferencia de Puntaje Global", low="red", high = "green")+
+  labs(title = 'IEDs Categoría A+', y='Diferencia puntaje global simulacro 2020 vs 2021',x='IED')+
+ geom_hline(yintercept= c(0),size = 1, color = 'red') 
+ggplotly(plot_5)
+
+plot_6<-ggplot(data=sim_130IED_2%>%filter(categ==c("A")),aes(x=reorder(IED, dif_pg),y=dif_pg)) + 
+  geom_bar(stat ='identity',aes(fill=dif_pg))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Diferencia de Puntaje Global", low="red", high = "green")+
+  labs(title = 'IEDs Categoría A', y='Diferencia puntaje global simulacro 2020 vs 2021',x='IED')+
+ geom_hline(yintercept= c(0),size = 1, color = 'red') 
+ggplotly(plot_6)
+
+```
+
+
+2. IEDs de egoría B cat
+
+```{r, echo=FALSE}
+plot_7<-ggplot(data=sim_130IED_2%>%filter(categ==c("B")),aes(x=reorder(IED, dif_pg),y=dif_pg)) + 
+  geom_bar(stat ='identity',aes(fill=dif_pg))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Diferencia de Puntaje Global", low="red", high = "green")+
+  labs(title = 'IEDs Categoría B', y='Diferencia puntaje global simulacro 2020 vs 2021',x='IED')+
+ geom_hline(yintercept= c(0),size = 1, color = 'red') 
+ggplotly(plot_7)
+```
+
+
+3. IEDs de categoría C
+
+```{r, echo=FALSE}
+plot_8<-ggplot(data=sim_130IED_2%>%filter(categ==c("C")),aes(x=reorder(IED, dif_pg),y=dif_pg)) + 
+  geom_bar(stat ='identity',aes(fill=dif_pg))+
+  coord_flip() + 
+  theme_grey() + 
+  scale_fill_gradient(name="Diferencia de Puntaje Global", low="red", high = "green")+
+  labs(title = 'IEDs Categoría C', y='Diferencia puntaje global simulacro 2020 vs 2021',x='IED')+
+ geom_hline(yintercept= c(0),size = 1, color = 'red') 
+ggplotly(plot_8)
+```
+
+
+4. IEDs de categoría D
+
+```{r, echo=FALSE}
+plot_9<-ggplot(data=sim_130IED_2%>%filter(categ==c("D")),aes(x=reorder(IED, dif_pg),y=dif_pg)) + 
+  geom_bar(stat ='identity',aes(fill=dif_pg))+
+  theme_grey() + 
+    coord_flip() +
+  scale_fill_gradient(name="Diferencia de Puntaje Global", low="red", high = "green")+
+  labs(title = 'IEDs Categoría D', y='Diferencia puntaje global simulacro 2020 vs 2021',x='IED')+
+ geom_hline(yintercept= c(0),size = 1, color = 'red') 
+ggplotly(plot_9)
+```
+
+## Distribución puntaje global por categoría 
+
+```{r}
+plot_10<-ggplot(data=sim_130IED_2, mappin= aes(x=pg_s2021, fill=categ))+
+geom_histogram(bins = 10, alpha=0.5, color="white")+  
+theme(panel.background = element_rect(fill = 'white', colour = 'white'))+ 
+scale_fill_manual(values=c("darkgreen","green", "yellow", "orange","red"),
+labels=c("A+","A", "B", "C", "D")) +
+labs(title = "Distribución Puntaje global", y="Número de IEDs",x="Puntaje global 2021", fill="Categoría", caption= "Fuente: SED con datos ICFES")
+
+ggplotly(plot_10)
+
+```
+### Distribución puntaje global por programa de focalización 
+
+```{r}
+plot_11<-ggplot(data=sim_130IED_2, mappin= aes(x=pg_s2021, fill=Focalización))+
+geom_histogram(bins = 10,alpha=0.5, color="white")+ 
+theme(panel.background = element_rect(fill = 'white', colour = 'white'))+        
+  labs(title = 'Distribución Puntaje global', y='Número de IEDs',x='Puntaje global 2021', caption= "Fuente: SED con datos ICFES")
+ggplotly(plot_11)
+
+
+```
